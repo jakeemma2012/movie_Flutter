@@ -6,40 +6,63 @@ import 'package:movieappprj/Models/User.dart';
 import 'package:movieappprj/Utils/constants.dart';
 import 'Global.dart';
 
+class DatabaseService {
+  static String _prettyPrintJson(dynamic json) {
+    const encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(json);
+  }
 
-class DatabaseService{
+  static Future<List<Movie>> getNowShowing() async {
+    try {
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${User.getUser?.accessToken} ?? ""',
+      };
 
-  static Future<List<dynamic>> getNowShowing() async {
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqYWtlbW1hIiwiaWF0IjoxNzQ0MTA4MDA0LCJleHAiOjE3NDQxMTA1MDR9.TfIGvgBxEiy9PFfZqw05E-Dwaw2XI6O8bkP0oYSBoVo' 
-    };
+      final response = await http.get(
+        Uri.parse('$baseUrl/movies/all'),
+        headers: headers,
+      );
 
-    final response = await http.get(Uri.parse('$baseUrl/movies/all'), headers: headers);
-    
-    if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
-      return jsonDecode(response.body)['results'].map((e) => Movie.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load now showing movies');
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        print(_prettyPrintJson(jsonResponse));
+        if (jsonResponse is List) {
+          return jsonResponse.map((e) => Movie.fromJson(e)).toList();
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception(
+          'Failed to load now showing movies: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print('Error in getNowShowing: $e');
+      throw Exception('Failed to load now showing movies: $e');
     }
   }
 
   static Future<List<Map<String, dynamic>>> getPopular() async {
-     final headers = {
+    final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqYWtlbW1hIiwiaWF0IjoxNzQ0MTAyNTA5LCJleHAiOjE3NDQxMDUwMDl9.S_q-2VhgXJpabcLMpheO3O14IqrlJ1dGPrYAy2ADjC8' 
+      'Authorization':
+          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqYWtpZW1tYSIsImlhdCI6MTc0NDQ0MjI1NCwiZXhwIjoxNzQ0NDQ0NzU0fQ.NtqYMlK9OPlwy1ka6kQJECgAZu-qIDznHh0klq2UaBM',
     };
 
-    final response = await http.get(Uri.parse('$baseUrl/movies/all'), headers: headers);
+    final response = await http.get(
+      Uri.parse('$baseUrl/movies/all'),
+      headers: headers,
+    );
     if (response.statusCode == 200) {
       print(jsonDecode(response.body));
-      return jsonDecode(response.body)['results'];
+      return jsonDecode(
+        response.body,
+      )['results'].map((e) => Movie.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load popular movies');
     }
   }
 }
-

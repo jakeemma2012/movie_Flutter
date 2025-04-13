@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hidden_drawer_menu/controllers/simple_hidden_drawer_controller.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:movieappprj/Models/Movie.dart';
 import 'package:movieappprj/Services/DatabaseService.dart';
@@ -15,23 +13,44 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
-List<Movie> nowShowing = [];
-List<Movie> popular = [];
+  List<Movie> nowShowing = [];
+  List<Movie> popular = [];
 
   @override
   void initState() {
     super.initState();
+    _loadNowShowingMovies();
   }
 
-  
+  Future<void> _loadNowShowingMovies() async {
+    try {
+      final movies = await DatabaseService.getNowShowing();
+      if (mounted) {
+        setState(() {
+          nowShowing = movies;
+        });
+      }
+    } catch (e) {
+      print('Error loading movies: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load movies: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-  final dark = Util.isDarkMode(context);
+    final dark = Util.isDarkMode(context);
     return SafeArea(
       child: Scaffold(
         backgroundColor: dark ? Colors.black : Colors.white,
 
-        appBar: _AppBar_Widget(),
+        appBar: _AppBar_Widget(dark),
 
         body: Padding(
           padding: EdgeInsets.all(15),
@@ -100,7 +119,10 @@ List<Movie> popular = [];
                                           Text(
                                             "Spiderman : No Way Home No Way Home No Way Home",
                                             style: TextStyle(
-                                              color: dark ? Colors.white : Colors.black,
+                                              color:
+                                                  dark
+                                                      ? Colors.white
+                                                      : Colors.black,
                                               fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                               height: 1.2,
@@ -119,7 +141,10 @@ List<Movie> popular = [];
                                                 "4.5/10",
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  color: dark ? Colors.white : Colors.grey[600],
+                                                  color:
+                                                      dark
+                                                          ? Colors.white
+                                                          : Colors.grey[600],
                                                 ),
                                               ),
                                             ],
@@ -147,14 +172,20 @@ List<Movie> popular = [];
                                               Icon(
                                                 Icons.access_time,
                                                 size: 20,
-                                                color: dark ? Colors.white : Colors.grey[600],
+                                                color:
+                                                    dark
+                                                        ? Colors.white
+                                                        : Colors.grey[600],
                                               ),
                                               SizedBox(width: 4),
                                               Text(
                                                 "1h 47m",
                                                 style: TextStyle(
                                                   fontSize: 16,
-                                                  color: dark ? Colors.white : Colors.grey[600],
+                                                  color:
+                                                      dark
+                                                          ? Colors.white
+                                                          : Colors.grey[600],
                                                 ),
                                               ),
                                             ],
@@ -305,11 +336,9 @@ List<Movie> popular = [];
   }
 
   Row _Title_showing_and_button_See_all(bool dark) {
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-
         Text(
           "Now Showing",
           style: GoogleFonts.merriweather(
@@ -340,32 +369,36 @@ List<Movie> popular = [];
     );
   }
 
-  AppBar _AppBar_Widget() {
+  AppBar _AppBar_Widget(bool dark) {
     return AppBar(
       title: Text(
         'Home Page',
         style: GoogleFonts.merriweather(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Util.TitleColor,
+          color: dark ? Colors.white : Util.TitleColor,
         ),
       ),
       centerTitle: true,
-      backgroundColor: Colors.white,
+      backgroundColor: dark ? Colors.black : Colors.white,
       leading: IconButton(
         onPressed: () {
           //  SimpleHiddenDrawerController.of(context).toggle();
         },
-        icon: Icon(Iconsax.menu_board, color: Colors.black),
+        icon: Icon(
+          Iconsax.menu_board,
+          color: dark ? Colors.white : Colors.black,
+        ),
       ),
       actions: [
         IconButton(
           onPressed: () {},
-          icon: Icon(Iconsax.notification, color: Colors.black),
+          icon: Icon(
+            Iconsax.notification,
+            color: dark ? Colors.white : Colors.black,
+          ),
         ),
       ],
     );
   }
-
-
 }

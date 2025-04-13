@@ -27,13 +27,12 @@ class Movie {
     required this.videoUrl,
   });
 
-
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
       movieId: json['movieId'],
       title: json['title'],
       rating: json['rating'],
-      overview: json['overview'],
+      overview: json['overviewString'],
       genres: json['genres'],
       status: json['status'],
       studio: json['studio'],

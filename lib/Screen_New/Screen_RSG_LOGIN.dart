@@ -55,8 +55,6 @@ class _ScreenRsgLoginState extends State<ScreenRsgLogin>
 
           child: Stack(
             children: [
-              
-
               Scaffold(
                 body: SingleChildScrollView(
                   child: Padding(

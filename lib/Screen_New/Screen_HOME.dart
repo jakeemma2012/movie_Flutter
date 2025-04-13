@@ -32,12 +32,15 @@ class ScreenHome extends StatelessWidget {
                   subTitle:
                       "Personalize the experience, emphasizing ownership and choice",
                 ),
+
                 _FirstLook(
                   image: Util.Logo2,
                   bigTitle: "Join the Movie Lovers Community!",
                   subTitle:
                       "reate a sense of community and shared experience among users",
                 ),
+  
+                
               ],
             ),
 
@@ -54,10 +57,7 @@ class ScreenHome extends StatelessWidget {
 }
 
 class _nextPage_button extends StatelessWidget {
-  const _nextPage_button({
-    super.key,
-  });
-
+  const _nextPage_button({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class _nextPage_button extends StatelessWidget {
           Dotnavigation_Controller.instance.nextPage();
         },
         style: TextButton.styleFrom(
-          backgroundColor: dark ? Colors.white : Colors.blue ,
+          backgroundColor: dark ? Colors.white : Colors.blue,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
