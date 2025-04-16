@@ -11,6 +11,7 @@ class Movie {
   final int releaseYear;
   final String imageUrl;
   final String videoUrl;
+  final int duration;
 
   Movie({
     required this.movieId,
@@ -25,6 +26,7 @@ class Movie {
     required this.releaseYear,
     required this.imageUrl,
     required this.videoUrl,
+    required this.duration,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class Movie {
       releaseYear: json['releaseYear'],
       imageUrl: json['imageUrl'],
       videoUrl: json['videoUrl'],
+      duration: json['duration'],
     );
   }
 }

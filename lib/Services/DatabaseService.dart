@@ -48,8 +48,7 @@ class DatabaseService {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization':
-          'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqYWtpZW1tYSIsImlhdCI6MTc0NDQ0MjI1NCwiZXhwIjoxNzQ0NDQ0NzU0fQ.NtqYMlK9OPlwy1ka6kQJECgAZu-qIDznHh0klq2UaBM',
+      'Authorization': 'Bearer ${User.getUser?.accessToken} ?? ""',
     };
 
     final response = await http.get(
