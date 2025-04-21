@@ -1,31 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:movieappprj/Function/_bottom_NAV.dart';
+import 'package:movieappprj/Function/sideMenu_list.dart';
+import 'package:movieappprj/Function/sideNoti_list.dart';
 import 'package:movieappprj/Models/Movie.dart';
 import 'package:movieappprj/Services/DatabaseService.dart';
-import 'package:movieappprj/Services/Global.dart';
+import 'package:movieappprj/Services/ImageService.dart';
 import 'package:movieappprj/Utils/constants.dart';
+import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 
-String _formatDuration(int totalMinutes) {
-  if (totalMinutes <= 0) {
-    return '';
-  }
-  final hours = totalMinutes ~/ 60;
-  final minutes = totalMinutes % 60;
-  final hoursString = hours > 0 ? '${hours}h ' : '';
-  final minutesString = minutes > 0 ? '${minutes}m' : '';
-  if (hours > 0 && minutes == 0) {
-    return '${hours}h';
-  }
-  if (hours == 0 && minutes > 0) {
-    return '${minutes}m';
-  }
-  return '$hoursString$minutesString'.trim();
-}
+import '_Detail_Movie.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
-
   @override
   State<HomePageScreen> createState() => _HomePageScreenState();
 }
@@ -33,6 +22,9 @@ class HomePageScreen extends StatefulWidget {
 class _HomePageScreenState extends State<HomePageScreen> {
   List<Movie> nowShowing = [];
   List<Movie> popular = [];
+  final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
+  final GlobalKey<SideMenuState> notificationMenuKey =
+      GlobalKey<SideMenuState>();
 
   @override
   void initState() {
@@ -86,37 +78,66 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
     final dark = Util.isDarkMode(context);
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: dark ? Colors.black : Colors.white,
-
-        appBar: _AppBar_Widget(dark),
-
-        body: Padding(
-          padding: EdgeInsets.all(15),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-
-                _Title_showing_and_button_See_all(dark),
-
-                const SizedBox(height: 10),
-
-                _image_NowShowing(dark, nowShowing),
-
-                const SizedBox(height: 25),
-
-                _Title_Pupular_and_See_all(dark),
-
-                const SizedBox(height: 15),
-
-                _buildPopularList(context, dark, nowShowing),
-              ],
+    return SideMenu(
+      key: sideMenuKey,
+      background: Colors.black.withOpacity(0.5),
+      menu: SideMenuList(menuKey: sideMenuKey),
+      child: Builder(
+        builder: (context) {
+          final isMenuOpen = sideMenuKey.currentState?.isOpened ?? false;
+          return AbsorbPointer(
+            absorbing: isMenuOpen,
+            child: SideMenu(
+              key: notificationMenuKey,
+              background: Colors.black.withOpacity(0.5),
+              menu: SideNotiList(notificationMenuKey: notificationMenuKey),
+              child: Builder(
+                builder: (context) {
+                  final isNotificationOpen =
+                      notificationMenuKey.currentState?.isOpened ?? false;
+                  return AbsorbPointer(
+                    absorbing: isNotificationOpen,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (isMenuOpen) {
+                          sideMenuKey.currentState?.closeSideMenu();
+                        }
+                        if (isNotificationOpen) {
+                          notificationMenuKey.currentState?.closeSideMenu();
+                        }
+                      },
+                      child: SafeArea(
+                        child: Scaffold(
+                          backgroundColor: dark ? Colors.black : Colors.white,
+                          bottomNavigationBar: BottomNav(),
+                          appBar: _AppBar_Widget(dark),
+                          body: Padding(
+                            padding: EdgeInsets.all(15),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 10),
+                                  _Title_showing_and_button_See_all(dark),
+                                  const SizedBox(height: 10),
+                                  _image_NowShowing(dark, nowShowing),
+                                  const SizedBox(height: 25),
+                                  _Title_Pupular_and_See_all(dark),
+                                  const SizedBox(height: 15),
+                                  _buildPopularList(context, dark, nowShowing),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -150,7 +171,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
         return GestureDetector(
           onTap: () {
-            print("Tapped index : $index, Movie: ${movie.title}");
+            Get.to(() => DetailMovie(movie: movie));
           },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,24 +185,65 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    "$baseUrlCdn/api/get_images?linkImage=${movie.imageUrl}",
-                    fit: BoxFit.cover,
-                    loadingBuilder:
-                        (context, child, progress) =>
-                            progress == null
-                                ? child
-                                : Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                  child: FutureBuilder<String>(
+                    future: ImageService.getImageUrl(movie.imageUrl, "poster"),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        print('Error loading image: ${snapshot.error}');
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 40,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Failed to load image',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return Image.network(
+                        snapshot.data!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stack) {
+                          print('Network image error: $error');
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red,
+                                  size: 40,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Failed to load image',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
                                   ),
                                 ),
-                    errorBuilder:
-                        (context, error, stack) => Icon(
-                          Icons.movie,
-                          color: Colors.grey[600],
-                          size: 40,
-                        ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),
@@ -192,7 +254,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${movie.title} (${movie.releaseYear})",
+                      movie.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -237,7 +299,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                         SizedBox(width: 5),
                         Text(
-                          _formatDuration(movie.duration),
+                          Util.formatDuration(movie.duration),
                           style: TextStyle(
                             fontSize: 14,
                             color: dark ? Colors.grey[400] : Colors.grey[700],
@@ -333,7 +395,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
             itemBuilder: (context, index) {
               return GestureDetector(
                 onTap: () {
-                  print("Tapped index : $index");
+                  Get.to(() => DetailMovie(movie: nowShowing[index]));
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 15),
@@ -346,12 +408,72 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
                           color: Colors.grey,
-                          image: DecorationImage(
-                            image: NetworkImage(
-                              "$baseUrlCdn/api/get_images?linkImage=${nowShowing[index].imageUrl}",
-                            ),
-                            fit: BoxFit.cover,
+                        ),
+                        child: FutureBuilder<String>(
+                          future: ImageService.getImageUrl(
+                            nowShowing[index].imageUrl,
+                            "poster",
                           ),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                            if (snapshot.hasError) {
+                              print('Error loading image: ${snapshot.error}');
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                      size: 40,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Failed to load image',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.network(
+                                snapshot.data!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stack) {
+                                  print('Network image error: $error');
+                                  return Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.error_outline,
+                                          color: Colors.red,
+                                          size: 40,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          'Failed to load image',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
                         ),
                       ),
 
@@ -446,7 +568,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
       backgroundColor: dark ? Colors.black : Colors.white,
       leading: IconButton(
         onPressed: () {
-          //  SimpleHiddenDrawerController.of(context).toggle();
+          if (sideMenuKey.currentState?.isOpened ?? false) {
+            sideMenuKey.currentState?.closeSideMenu();
+          } else {
+            sideMenuKey.currentState?.openSideMenu();
+          }
         },
         icon: Icon(
           Iconsax.menu_board,
@@ -455,7 +581,13 @@ class _HomePageScreenState extends State<HomePageScreen> {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            if (notificationMenuKey.currentState?.isOpened ?? false) {
+              notificationMenuKey.currentState?.closeSideMenu();
+            } else {
+              notificationMenuKey.currentState?.openSideMenu();
+            }
+          },
           icon: Icon(
             Iconsax.notification,
             color: dark ? Colors.white : Colors.black,

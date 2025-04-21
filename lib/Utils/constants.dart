@@ -28,6 +28,17 @@ class Util {
 
   static const Color BackgroundColor = Color(0xFF88A4E8);
 
+  static bool darkmode = false;
+
+  static bool isDarkMode(BuildContext context) {
+    return darkmode;
+  }
+
+  static void toggleDarkMode() {
+    darkmode = !darkmode;
+    Get.changeThemeMode(darkmode ? ThemeMode.dark : ThemeMode.light);
+  }
+
   static double ScrrenHeight() {
     return MediaQuery.of(Get.context!).size.height;
   }
@@ -40,12 +51,24 @@ class Util {
     return kToolbarHeight;
   }
 
-  static bool isDarkMode(BuildContext context){
-    return Theme.of(context).brightness == Brightness.dark;
-  }
-
-  static double getBottomNavigationBarHeight(){
+  static double getBottomNavigationBarHeight() {
     return kBottomNavigationBarHeight;
   }
 
+  static String formatDuration(int totalMinutes) {
+    if (totalMinutes <= 0) {
+      return '';
+    }
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    final hoursString = hours > 0 ? '${hours}h ' : '';
+    final minutesString = minutes > 0 ? '${minutes}m' : '';
+    if (hours > 0 && minutes == 0) {
+      return '${hours}h';
+    }
+    if (hours == 0 && minutes > 0) {
+      return '${minutes}m';
+    }
+    return '$hoursString$minutesString'.trim();
+  }
 }

@@ -29,10 +29,7 @@ class _HiddenMenuScreenState extends State<HiddenMenuScreen> {
         ScreenHiddenDrawer(
           ItemHiddenMenu(
             name: "Home",
-            baseStyle: TextStyle(
-              fontSize: 20,
-              color: Util.TitleColor,
-            ),
+            baseStyle: TextStyle(fontSize: 20, color: Util.TitleColor),
             selectedStyle: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -50,11 +47,7 @@ class _HiddenMenuScreenState extends State<HiddenMenuScreen> {
   Widget build(BuildContext context) {
     // Hiển thị loading khi chưa khởi tạo xong
     if (!_isInitialized) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return WillPopScope(
