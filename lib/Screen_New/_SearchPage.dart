@@ -219,7 +219,7 @@ class _SearchPageState extends State<SearchPage> {
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: FutureBuilder<String>(
-                future: ImageService.getImageUrl(movie.backdropUrl, "backdrop"),
+                future: ImageService.getAssets(movie.backdropUrl, "backdrop"),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Container(

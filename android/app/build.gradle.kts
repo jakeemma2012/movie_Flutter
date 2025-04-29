@@ -7,6 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.movieappprj"
+    
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13113456"
 

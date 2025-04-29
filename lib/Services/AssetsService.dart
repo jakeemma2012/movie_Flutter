@@ -3,7 +3,7 @@ import 'package:movieappprj/Services/Global.dart';
 import 'package:movieappprj/Models/User.dart';
 
 class Assetsservice {
-  static Future<String> getImageUrl(String imagePath) async {
+  static Future<String> getAssets(String imagePath) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/assets?linkAssets=$imagePath'),

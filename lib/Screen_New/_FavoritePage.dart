@@ -107,7 +107,7 @@ class _FavoritePageState extends State<FavoritePage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: FutureBuilder<String>(
-                            future: ImageService.getImageUrl(
+                            future: ImageService.getAssets(
                               movie.imageUrl,
                               "poster",
                             ),

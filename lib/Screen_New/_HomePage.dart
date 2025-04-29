@@ -186,7 +186,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: FutureBuilder<String>(
-                    future: ImageService.getImageUrl(movie.imageUrl, "poster"),
+                    future: ImageService.getAssets(movie.imageUrl, "poster"),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
@@ -410,7 +410,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                           color: Colors.grey,
                         ),
                         child: FutureBuilder<String>(
-                          future: ImageService.getImageUrl(
+                          future: ImageService.getAssets(
                             nowShowing[index].imageUrl,
                             "poster",
                           ),

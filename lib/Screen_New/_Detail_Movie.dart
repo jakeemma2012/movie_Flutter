@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:movieappprj/Models/Movie.dart';
 import 'package:movieappprj/Services/DatabaseService.dart';
+import 'package:movieappprj/Services/Global.dart';
 import 'package:movieappprj/Services/ImageService.dart';
 import 'package:movieappprj/Utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,6 +13,7 @@ import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:chewie/chewie.dart';
+import 'package:better_player/better_player.dart';
 
 class DetailMovie extends StatefulWidget {
   final Movie? movie;
@@ -38,182 +40,94 @@ class _DetailMovieState extends State<DetailMovie> {
     }
   }
 
-  VideoPlayerController? _videoController;
-  ChewieController? _chewieController;
-
-  Future<void> _initializeVideo(String videoUrl) async {
-    try {
-      // Show loading dialog first
-      _showVideoDialog(videoUrl, true);
-
-      // Initialize video
-      _videoController = VideoPlayerController.network(videoUrl);
-      await _videoController!.initialize();
-
-      _chewieController = ChewieController(
-        videoPlayerController: _videoController!,
-        autoPlay: true,
-        looping: false,
-        showControls: true,
-        aspectRatio: 16 / 9,
-        placeholder: Container(
-          color: Colors.black,
-          child: Center(
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2,
-            ),
-          ),
-        ),
-        errorBuilder: (context, errorMessage) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, color: Colors.white, size: 48),
-                SizedBox(height: 16),
-                Text(
-                  'Error loading video',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
-        },
-      );
-
-      if (mounted) setState(() {});
-    } catch (e) {
-      print('Error initializing video: $e');
-      if (mounted) {
-        Navigator.of(context).pop(); // Close dialog on error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not play the video. Please try again later.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-      rethrow;
-    }
-  }
-
-  void _showVideoDialog(String videoUrl, bool isLoading) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async {
-            _videoController?.pause();
-            return true;
-          },
-          child: Dialog(
-            backgroundColor: Colors.transparent,
-            insetPadding: EdgeInsets.zero,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.8,
-              color: Colors.black,
-              child: Stack(
-                children: [
-                  Center(
-                    child:
-                        isLoading
-                            ? CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            )
-                            : AspectRatio(
-                              aspectRatio: 16 / 9,
-                              child: Chewie(controller: _chewieController!),
-                            ),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: IconButton(
-                      icon: Icon(Icons.close, color: Colors.white, size: 24),
-                      onPressed: () {
-                        _videoController?.pause();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  BetterPlayerController? _betterPlayerController;
 
   Future<void> _playTrailer() async {
     try {
-      final videoUrl = await ImageService.getImageUrl(
+      final videoUrl = await ImageService.getAssets(
         widget.movie?.videoUrl ?? '',
         "video",
       );
-      print("Video URL: $videoUrl");
 
       if (videoUrl.isNotEmpty) {
-        // Show dialog with loading state first
-        _showVideoDialog(videoUrl, true);
+        final betterPlayerController = BetterPlayerController(
+          BetterPlayerConfiguration(
+            autoPlay: true,
+            aspectRatio: 16 / 9,
+            fit: BoxFit.contain,
+            looping: false,
+            errorBuilder: (context, errorMessage) {
+              print("Error while loading video: $errorMessage");
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.white, size: 48),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Error loading video',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      errorMessage ?? 'Could not load the video stream.',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          betterPlayerDataSource: BetterPlayerDataSource(
+            BetterPlayerDataSourceType.network,
+            videoUrl,
+            headers: {'User-Agent': 'Mozilla/5.0'},
+          ),
+        );
 
-        // Initialize video
-        _videoController = VideoPlayerController.network(videoUrl);
-        await _videoController!.initialize();
+        betterPlayerController.addEventsListener((event) {
+          print("BetterPlayer event: ${event.betterPlayerEventType}");
+        });
 
-        _chewieController = ChewieController(
-          videoPlayerController: _videoController!,
-          autoPlay: true,
-          looping: false,
-          showControls: true,
-          aspectRatio: 16 / 9,
-          errorBuilder: (context, errorMessage) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, color: Colors.white, size: 48),
-                  SizedBox(height: 16),
-                  Text(
-                    'Error loading video',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    errorMessage,
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+        if (!mounted) return;
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              backgroundColor: Colors.black,
+              contentPadding: EdgeInsets.zero,
+              content: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: BetterPlayer(controller: betterPlayerController),
               ),
             );
           },
         );
-
+      } else {
         if (mounted) {
-          setState(() {
-            // Update dialog to show video
-            _showVideoDialog(videoUrl, false);
-          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Video URL is empty. Please try again later.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error playing trailer: $e');
+      print('Stack trace: $stackTrace');
+
       if (mounted) {
-        Navigator.of(context).pop(); // Close dialog on error
+        Navigator.of(context).pop(); // Close dialog nếu đã mở
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Could not play the video. Please try again later.'),
+            content: Text('Could not play the video: $e'),
             duration: Duration(seconds: 2),
           ),
         );
@@ -223,8 +137,7 @@ class _DetailMovieState extends State<DetailMovie> {
 
   @override
   void dispose() {
-    _videoController?.dispose();
-    _chewieController?.dispose();
+    _betterPlayerController?.dispose();
     super.dispose();
   }
 
@@ -246,7 +159,7 @@ class _DetailMovieState extends State<DetailMovie> {
                     height: 250,
                     width: double.infinity,
                     child: FutureBuilder<String>(
-                      future: ImageService.getImageUrl(
+                      future: ImageService.getAssets(
                         widget.movie?.backdropUrl ?? '',
                         "backdrop",
                       ),

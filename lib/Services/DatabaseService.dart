@@ -27,7 +27,7 @@ class DatabaseService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        print(_prettyPrintJson(jsonResponse));
+        // print(_prettyPrintJson(jsonResponse));
         if (jsonResponse is List) {
           return jsonResponse.map((e) => Movie.fromJson(e)).toList();
         } else {
@@ -56,7 +56,7 @@ class DatabaseService {
       headers: headers,
     );
     if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
+      // print(jsonDecode(response.body));
       return jsonDecode(
         response.body,
       )['results'].map((e) => Movie.fromJson(e)).toList();
@@ -80,7 +80,7 @@ class DatabaseService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        print(_prettyPrintJson(jsonResponse));
+        // print(_prettyPrintJson(jsonResponse));
         if (jsonResponse is List) {
           return jsonResponse.map((e) => Movie.fromJson(e)).toList();
         } else {
@@ -133,7 +133,7 @@ class DatabaseService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        print(_prettyPrintJson(jsonResponse));
+        // print(_prettyPrintJson(jsonResponse));
         if (jsonResponse is List) {
           return jsonResponse.map((e) => Movie.fromJson(e)).toList();
         } else {
