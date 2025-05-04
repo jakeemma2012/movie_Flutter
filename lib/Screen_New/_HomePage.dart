@@ -23,6 +23,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   List<Movie> nowShowing = [];
   List<Movie> popular = [];
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
+
   final GlobalKey<SideMenuState> notificationMenuKey =
       GlobalKey<SideMenuState>();
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:movieappprj/Function/_bottom_NAV.dart';
+import 'package:movieappprj/Function/sideMenu_list.dart';
 import 'package:movieappprj/Models/Movie.dart';
 import 'package:movieappprj/Screen_New/_Detail_Movie.dart';
 import 'package:movieappprj/Services/DatabaseService.dart';
 import 'package:movieappprj/Services/ImageService.dart';
+import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -15,8 +17,11 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
+  final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
+
   final List<String> _searchHistory = [];
   bool _isSearching = false;
+
   List<Movie> allMovies = [];
   List<Movie> searchMovies = [];
 
@@ -69,69 +74,107 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: dark ? Colors.black : Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Container(
-          height: 45,
-          decoration: BoxDecoration(
-            color: dark ? Colors.grey[900] : Colors.grey[200],
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: TextField(
-            controller: _searchController,
-            style: TextStyle(
-              color: dark ? Colors.white : Colors.black,
-              fontSize: 16,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Search movies...',
-              hintStyle: TextStyle(
-                color: dark ? Colors.grey[400] : Colors.grey[600],
-              ),
-              prefixIcon: Icon(
-                Iconsax.search_normal,
-                color: dark ? Colors.grey[400] : Colors.grey[600],
-              ),
-              suffixIcon:
-                  _searchController.text.isNotEmpty
-                      ? IconButton(
-                        icon: Icon(
-                          Icons.close,
+    return SideMenu(
+      key: sideMenuKey,
+      background: Colors.black.withOpacity(0.5),
+      menu: SideMenuList(menuKey: sideMenuKey),
+      child: Builder(
+        builder: (context) {
+          final isMenuOpen = sideMenuKey.currentState?.isOpened ?? false;
+          return AbsorbPointer(
+            absorbing: isMenuOpen,
+            child: GestureDetector(
+              onTap: () {
+                if (isMenuOpen) {
+                  sideMenuKey.currentState?.closeSideMenu();
+                }
+              },
+              child: Scaffold(
+                backgroundColor: dark ? Colors.black : Colors.white,
+                appBar: AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  leading: IconButton(
+                    onPressed: () {
+                      if (sideMenuKey.currentState?.isOpened ?? false) {
+                        sideMenuKey.currentState?.closeSideMenu();
+                      } else {
+                        sideMenuKey.currentState?.openSideMenu();
+                      }
+                    },
+                    icon: Icon(
+                      Iconsax.menu_board,
+                      color: dark ? Colors.white : Colors.black,
+                    ),
+                  ),
+                  title: Container(
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: dark ? Colors.grey[900] : Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      style: TextStyle(
+                        color: dark ? Colors.white : Colors.black,
+                        fontSize: 16,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search movies...',
+                        hintStyle: TextStyle(
                           color: dark ? Colors.grey[400] : Colors.grey[600],
                         ),
-                        onPressed: () {
-                          _searchController.clear();
+                        prefixIcon: Icon(
+                          Iconsax.search_normal,
+                          color: dark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                        suffixIcon:
+                            _searchController.text.isNotEmpty
+                                ? IconButton(
+                                  icon: Icon(
+                                    Icons.close,
+                                    color:
+                                        dark
+                                            ? Colors.grey[400]
+                                            : Colors.grey[600],
+                                  ),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {
+                                      searchMovies.clear();
+                                    });
+                                  },
+                                )
+                                : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                      ),
+                      onSubmitted: _performSearch,
+                      onChanged: (value) {
+                        if (value.isEmpty) {
                           setState(() {
                             searchMovies.clear();
                           });
-                        },
-                      )
-                      : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        } else {
+                          _performSearch(value);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                body:
+                    // _isSearching
+                    // ? const Center(child: CircularProgressIndicator())
+                    // : _searchController.text.isEmpty? _buildSearchHistory():
+                    _buildSearchResults(),
+                bottomNavigationBar: BottomNav(),
+              ),
             ),
-            onSubmitted: _performSearch,
-            onChanged: (value) {
-              if (value.isEmpty) {
-                setState(() {
-                  searchMovies.clear();
-                });
-              } else {
-                _performSearch(value);
-              }
-            },
-          ),
-        ),
+          );
+        },
       ),
-      body:
-          // _isSearching
-          // ? const Center(child: CircularProgressIndicator())
-          // : _searchController.text.isEmpty? _buildSearchHistory():
-          _buildSearchResults(),
-      bottomNavigationBar: BottomNav(),
     );
   }
 

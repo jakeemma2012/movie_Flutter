@@ -1,5 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:movieappprj/Function/_bottom_NAV.dart';
+import 'package:movieappprj/Screen/Home_Screen.dart';
+import 'package:movieappprj/Screen_New/Screen_HOME.dart';
+import 'package:movieappprj/Screen_New/_FavoritePage.dart';
+import 'package:movieappprj/Screen_New/_ProfilePage.dart';
+import 'package:movieappprj/Screen_New/_SearchPage.dart';
 import 'package:movieappprj/Utils/constants.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 
@@ -9,6 +17,7 @@ class SideMenuList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Util.isDarkMode(context);
+    final controller = Get.put(NavigationController());
     return Container(
       width: 250,
       color: dark ? Colors.black : Colors.white,
@@ -19,7 +28,7 @@ class SideMenuList extends StatelessWidget {
             color: Colors.blue,
             child: Center(
               child: Text(
-                'Menu Header Jake',
+                'Menu Navigation',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -39,32 +48,49 @@ class SideMenuList extends StatelessWidget {
             ),
             onTap: () {
               menuKey.currentState?.closeSideMenu();
+              controller.changeIndex(0);
             },
           ),
           ListTile(
             leading: Icon(
-              Icons.movie,
+              Icons.favorite,
               color: dark ? Colors.white : Colors.black,
             ),
             title: Text(
-              'Movies',
+              'Favorite',
               style: TextStyle(color: dark ? Colors.white : Colors.black),
             ),
             onTap: () {
               menuKey.currentState?.closeSideMenu();
+              controller.changeIndex(1);
             },
           ),
           ListTile(
             leading: Icon(
-              Icons.settings,
+              Icons.search,
               color: dark ? Colors.white : Colors.black,
             ),
             title: Text(
-              'Settings',
+              'Search',
               style: TextStyle(color: dark ? Colors.white : Colors.black),
             ),
             onTap: () {
               menuKey.currentState?.closeSideMenu();
+              controller.changeIndex(2);
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.person,
+              color: dark ? Colors.white : Colors.black,
+            ),
+            title: Text(
+              'Profile',
+              style: TextStyle(color: dark ? Colors.white : Colors.black),
+            ),
+            onTap: () {
+              menuKey.currentState?.closeSideMenu();
+              controller.changeIndex(3);
             },
           ),
         ],

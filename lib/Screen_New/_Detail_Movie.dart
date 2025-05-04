@@ -2,17 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:movieappprj/Models/Movie.dart';
 import 'package:movieappprj/Services/DatabaseService.dart';
-import 'package:movieappprj/Services/Global.dart';
 import 'package:movieappprj/Services/ImageService.dart';
 import 'package:movieappprj/Utils/constants.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
-import 'package:http/http.dart' as http;
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:chewie/chewie.dart';
 import 'package:better_player/better_player.dart';
 
 class DetailMovie extends StatefulWidget {
@@ -41,6 +34,7 @@ class _DetailMovieState extends State<DetailMovie> {
   }
 
   BetterPlayerController? _betterPlayerController;
+  bool isFavorite = false;
 
   Future<void> _playTrailer() async {
     try {
@@ -99,12 +93,28 @@ class _DetailMovieState extends State<DetailMovie> {
           context: context,
           barrierDismissible: false,
           builder: (context) {
-            return AlertDialog(
-              backgroundColor: Colors.black,
-              contentPadding: EdgeInsets.zero,
-              content: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: BetterPlayer(controller: betterPlayerController),
+            // ignore: deprecated_member_use
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: AlertDialog(
+                backgroundColor: Colors.black,
+                contentPadding: EdgeInsets.zero,
+                content: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: BetterPlayer(controller: betterPlayerController),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      betterPlayerController.dispose();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Đóng',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -139,6 +149,34 @@ class _DetailMovieState extends State<DetailMovie> {
   void dispose() {
     _betterPlayerController?.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    _loadFavoriteMovies();
+    super.initState();
+  }
+
+  Future<void> _loadFavoriteMovies() async {
+    try {
+      final movies = await DatabaseService.getFavorite();
+      if (mounted) {
+        setState(() {
+          isFavorite = movies.any((m) => m.movieId == widget.movie?.movieId);
+          print("FAVOR : $isFavorite");
+        });
+      }
+    } catch (e) {
+      print('Error loading favorite movies: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load favorite movies: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -271,20 +309,7 @@ class _DetailMovieState extends State<DetailMovie> {
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.bookmark_border),
-                          onPressed: () {
-                            DatabaseService.addToFavorite(
-                              widget.movie?.movieId ?? 0,
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Added to favorites'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          },
-                        ),
+                        _build_BookMark_Favorite(context, isFavorite),
                       ],
                     ),
 
@@ -389,6 +414,36 @@ class _DetailMovieState extends State<DetailMovie> {
           ),
         ),
       ),
+    );
+  }
+
+  IconButton _build_BookMark_Favorite(BuildContext context, bool isFavorite) {
+    return IconButton(
+      icon: Icon(
+        isFavorite ? Icons.bookmark_added : Icons.bookmark_border,
+        color: Colors.amber,
+      ),
+      onPressed: () {
+        if (isFavorite) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Movie Favorite Already !!!'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          DatabaseService.addToFavorite(widget.movie?.movieId ?? 0);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Added to favorites'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          setState(() {
+            isFavorite = true;
+          });
+        }
+      },
     );
   }
 
