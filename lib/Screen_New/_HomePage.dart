@@ -162,9 +162,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
       itemCount: 5,
       separatorBuilder: (context, index) => SizedBox(height: 20),
       itemBuilder: (context, index) {
-        final movie = popularMovies[index];
+        final Movie = popularMovies[index];
         List<String> genreList =
-            movie.genres
+            Movie.genres
                 .split(',')
                 .map((g) => g.trim())
                 .where((g) => g.isNotEmpty)
@@ -172,7 +172,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
         return GestureDetector(
           onTap: () {
-            Get.to(() => DetailMovie(movie: movie));
+            Get.to(() => DetailMovie(movie: Movie));
           },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,7 +187,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: FutureBuilder<String>(
-                    future: ImageService.getAssets(movie.imageUrl, "poster"),
+                    future: ImageService.getAssets(Movie.imageUrl, "poster"),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
@@ -255,7 +255,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      movie.title,
+                      Movie.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -271,7 +271,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         Icon(Iconsax.star1, color: Colors.amber, size: 18),
                         SizedBox(width: 5),
                         Text(
-                          "${movie.rating.toStringAsFixed(1)}/10",
+                          "${Movie.rating.toStringAsFixed(1)}/10",
                           style: TextStyle(
                             fontSize: 14,
                             color: dark ? Colors.grey[400] : Colors.grey[700],
@@ -300,7 +300,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         ),
                         SizedBox(width: 5),
                         Text(
-                          Util.formatDuration(movie.duration),
+                          Util.formatDuration(Movie.duration),
                           style: TextStyle(
                             fontSize: 14,
                             color: dark ? Colors.grey[400] : Colors.grey[700],

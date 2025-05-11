@@ -39,8 +39,6 @@ class ScreenHome extends StatelessWidget {
                   subTitle:
                       "reate a sense of community and shared experience among users",
                 ),
-  
-                
               ],
             ),
 

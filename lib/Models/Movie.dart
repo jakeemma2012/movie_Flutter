@@ -1,18 +1,50 @@
-class Movie {
-  final int movieId;
-  final String title;
-  final double rating;
-  final String overview;
-  final String genres;
-  final String status;
-  final String studio;
-  final String director;
-  final List<dynamic> movieCast;
-  final int releaseYear;
-  final String imageUrl;
-  final String videoUrl;
-  final String backdropUrl;
-  final int duration;
+import 'package:hive/hive.dart';
+
+part 'Movie.g.dart';
+
+@HiveType(typeId: 0)
+class Movie extends HiveObject {
+  @HiveField(0)
+  int movieId;
+
+  @HiveField(1)
+  String title;
+
+  @HiveField(2)
+  double rating;
+
+  @HiveField(3)
+  String overview;
+
+  @HiveField(4)
+  String genres;
+
+  @HiveField(5)
+  String status;
+
+  @HiveField(6)
+  String studio;
+
+  @HiveField(7)
+  String director;
+
+  @HiveField(8)
+  List<String> movieCast;
+
+  @HiveField(9)
+  int releaseYear;
+
+  @HiveField(10)
+  String imageUrl;
+
+  @HiveField(11)
+  String videoUrl;
+
+  @HiveField(12)
+  String backdropUrl;
+
+  @HiveField(13)
+  int duration;
 
   Movie({
     required this.movieId,
@@ -41,7 +73,7 @@ class Movie {
       status: json['status'],
       studio: json['studio'],
       director: json['director'],
-      movieCast: json['movieCast'],
+      movieCast: List<String>.from(json['movieCast']),
       releaseYear: json['releaseYear'],
       imageUrl: json['imageUrl'],
       videoUrl: json['videoUrl'],

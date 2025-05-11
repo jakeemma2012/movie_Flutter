@@ -252,7 +252,7 @@ class _SearchPageState extends State<SearchPage> {
       padding: const EdgeInsets.all(16),
       itemCount: searchMovies.length,
       itemBuilder: (context, index) {
-        final movie = searchMovies[index];
+        final Movie = searchMovies[index];
         return Card(
           color: dark ? Colors.grey[900] : Colors.white,
           elevation: 2,
@@ -262,7 +262,7 @@ class _SearchPageState extends State<SearchPage> {
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: FutureBuilder<String>(
-                future: ImageService.getAssets(movie.backdropUrl, "backdrop"),
+                future: ImageService.getAssets(Movie.backdropUrl, "backdrop"),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Container(
@@ -286,7 +286,7 @@ class _SearchPageState extends State<SearchPage> {
                       color: dark ? Colors.grey[900] : Colors.grey[300],
                       child: Center(
                         child: Text(
-                          movie.title[0].toUpperCase(),
+                          Movie.title[0].toUpperCase(),
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -308,7 +308,7 @@ class _SearchPageState extends State<SearchPage> {
                         color: dark ? Colors.grey[900] : Colors.grey[300],
                         child: Center(
                           child: Text(
-                            movie.title[0].toUpperCase(),
+                            Movie.title[0].toUpperCase(),
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -323,7 +323,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
             title: Text(
-              movie.title,
+              Movie.title,
               style: TextStyle(
                 color: dark ? Colors.white : Colors.black,
                 fontWeight: FontWeight.bold,
@@ -334,14 +334,14 @@ class _SearchPageState extends State<SearchPage> {
               children: [
                 const SizedBox(height: 4),
                 Text(
-                  'Rating: ${movie.rating}',
+                  'Rating: ${Movie.rating}',
                   style: TextStyle(
                     color: dark ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  movie.overview,
+                  Movie.overview,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -354,7 +354,7 @@ class _SearchPageState extends State<SearchPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DetailMovie(movie: movie),
+                  builder: (context) => DetailMovie(movie: Movie),
                 ),
               );
             },

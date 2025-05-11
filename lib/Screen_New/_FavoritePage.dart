@@ -124,7 +124,7 @@ class _FavoritePageState extends State<FavoritePage> {
                           padding: const EdgeInsets.all(16),
                           itemCount: favoriteMovies.length,
                           itemBuilder: (context, index) {
-                            final movie = favoriteMovies[index];
+                            final Movie = favoriteMovies[index];
                             return Card(
                               color: dark ? Colors.grey[900] : Colors.white,
                               margin: const EdgeInsets.only(bottom: 16),
@@ -144,7 +144,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                     borderRadius: BorderRadius.circular(8),
                                     child: FutureBuilder<String>(
                                       future: ImageService.getAssets(
-                                        movie.imageUrl,
+                                        Movie.imageUrl,
                                         "poster",
                                       ),
                                       builder: (context, snapshot) {
@@ -183,7 +183,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                   ),
                                 ),
                                 title: Text(
-                                  movie.title,
+                                  Movie.title,
                                   style: TextStyle(
                                     color: dark ? Colors.white : Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          "${movie.rating.toStringAsFixed(1)}/10",
+                                          "${Movie.rating.toStringAsFixed(1)}/10",
                                           style: TextStyle(
                                             color:
                                                 dark
@@ -214,7 +214,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      Util.formatDuration(movie.duration),
+                                      Util.formatDuration(Movie.duration),
                                       style: TextStyle(
                                         color:
                                             dark
@@ -232,7 +232,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                   onPressed: () async {
                                     try {
                                       await DatabaseService.removeFromFavorite(
-                                        movie.movieId,
+                                        Movie.movieId,
                                       );
                                       _loadFavoriteMovies();
                                       ScaffoldMessenger.of(
@@ -260,7 +260,7 @@ class _FavoritePageState extends State<FavoritePage> {
                                   },
                                 ),
                                 onTap: () {
-                                  Get.to(() => DetailMovie(movie: movie));
+                                  Get.to(() => DetailMovie(movie: Movie));
                                 },
                               ),
                             );

@@ -114,7 +114,7 @@ class DatabaseService {
     if (response.statusCode == 200) {
       print('Movie added to favorites');
     } else {
-      throw Exception('Failed to add movie to favorites');
+      throw Exception('Failed to add Movie to favorites');
     }
   }
 
@@ -167,7 +167,7 @@ class DatabaseService {
     if (response.statusCode == 200) {
       print('Movie removed from favorites');
     } else {
-      throw Exception('Failed to remove movie from favorites');
+      throw Exception('Failed to remove Movie from favorites');
     }
   }
 }

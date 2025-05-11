@@ -14,7 +14,7 @@ class _LoginScreenState extends State<LoginScreen>
   bool _isLoginSelected = true;
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
-  final _formKey = GlobalKey<FormState>();  
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();

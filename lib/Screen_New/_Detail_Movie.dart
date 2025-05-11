@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:movieappprj/Models/Movie.dart';
+import 'package:movieappprj/Models/User.dart';
+import 'package:movieappprj/Models/ViewingHistory.dart';
 import 'package:movieappprj/Services/DatabaseService.dart';
 import 'package:movieappprj/Services/ImageService.dart';
 import 'package:movieappprj/Utils/constants.dart';
@@ -35,6 +38,7 @@ class _DetailMovieState extends State<DetailMovie> {
 
   BetterPlayerController? _betterPlayerController;
   bool isFavorite = false;
+  var box = Hive.box<ViewingHistory>('viewingHistoryBox');
 
   Future<void> _playTrailer() async {
     try {
@@ -88,6 +92,9 @@ class _DetailMovieState extends State<DetailMovie> {
         });
 
         if (!mounted) return;
+
+        // final history = ViewingHistory(userId: User.getUserId(), videoId: widget.movie?.movieId ?? 0, progress: 50.0);
+        // await box.add(history);
 
         showDialog(
           context: context,
