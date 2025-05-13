@@ -32,7 +32,6 @@ class ImageService {
         final cdnUrl = jsonResponse['url'] as String?;
 
         if (cdnUrl != null) {
-          // print('Got CDN URL from Spring Boot: $cdnUrl');
           return cdnUrl;
         }
       }

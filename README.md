@@ -1,20 +1,14 @@
-<<<<<<< HEAD
-# movieappprj
+# Movie App/Website
 
-A new Flutter project.
+## Đồ án cơ sở 
 
-## Getting Started
+## Using Stack : Java Spring Boot, NodeJs, Flutter
 
-This project is a starting point for a Flutter application.
+ Function : 
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# movie_Flutter
->>>>>>> a8c250f35ee77816cb6e6c7e2d2bed9f81a0bc3a
+  1. CRUD Movie (ADMIN)
+  2. Watch Movie
+  3. Favorite/Unfavorite Movie
+  4. Search Movie
+  5. History Watching
+  6. Upload Media with RestFul APIs 

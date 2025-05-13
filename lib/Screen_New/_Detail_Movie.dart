@@ -43,10 +43,10 @@ class _DetailMovieState extends State<DetailMovie> {
   Future<void> _playTrailer() async {
     try {
       final videoUrl = await ImageService.getAssets(
-        widget.movie?.videoUrl ?? '',
-        "video",
+        widget.movie?.trailerUrl ?? '',
+        "trailer",
       );
-
+      print("TRAILER URL: $videoUrl");
       if (videoUrl.isNotEmpty) {
         final betterPlayerController = BetterPlayerController(
           BetterPlayerConfiguration(

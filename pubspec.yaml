@@ -44,9 +44,9 @@ dependencies:
   http: ^1.1.0
   shrink_sidemenu: ^2.0.0+2-null-safety
   url_launcher: ^6.3.1
-  video_player: ^2.9.5
+  video_player: ^2.8.2
   webview_flutter: ^4.11.0
-  chewie: ^1.11.3
+  chewie: ^1.7.5
   better_player: ^0.0.84
   hive: ^2.2.3
   hive_flutter: ^1.1.0

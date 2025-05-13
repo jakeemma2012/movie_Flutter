@@ -38,13 +38,16 @@ class Movie extends HiveObject {
   String imageUrl;
 
   @HiveField(11)
-  String videoUrl;
+  String? videoUrl;
 
   @HiveField(12)
   String backdropUrl;
 
   @HiveField(13)
   int duration;
+
+  @HiveField(14)
+  String? trailerUrl;
 
   Movie({
     required this.movieId,
@@ -58,9 +61,10 @@ class Movie extends HiveObject {
     required this.movieCast,
     required this.releaseYear,
     required this.imageUrl,
-    required this.videoUrl,
+    this.videoUrl,
     required this.duration,
     required this.backdropUrl,
+    this.trailerUrl,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -79,6 +83,7 @@ class Movie extends HiveObject {
       videoUrl: json['videoUrl'],
       backdropUrl: json['backdropUrl'],
       duration: json['duration'],
+      trailerUrl: json['trailerUrl'],
     );
   }
 }
