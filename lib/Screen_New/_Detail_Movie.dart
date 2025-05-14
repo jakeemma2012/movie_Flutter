@@ -40,6 +40,27 @@ class _DetailMovieState extends State<DetailMovie> {
   bool isFavorite = false;
   var box = Hive.box<ViewingHistory>('viewingHistoryBox');
 
+  List<String> castFiles = [];
+  List<String> castNames = [];
+
+  Future<void> _getCastList() async {
+    try {
+      final castList = await ImageService.getCastList(
+        widget.movie?.title ?? '',
+      );
+      print("CAST LIST: $castList");
+
+      if (mounted) {
+        setState(() {
+          castFiles = castList['castFiles'] ?? [];
+          castNames = castList['castNames'] ?? [];
+        });
+      }
+    } catch (e) {
+      print('Error getting cast list: $e');
+    }
+  }
+
   Future<void> _playTrailer() async {
     try {
       final videoUrl = await ImageService.getAssets(
@@ -160,6 +181,7 @@ class _DetailMovieState extends State<DetailMovie> {
 
   @override
   void initState() {
+    _getCastList();
     _loadFavoriteMovies();
     super.initState();
   }
@@ -406,11 +428,11 @@ class _DetailMovieState extends State<DetailMovie> {
                       height: 120,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: _parseCast(widget.movie?.movieCast).length,
+                        itemCount: castFiles.length,
                         itemBuilder: (context, index) {
-                          final name =
-                              _parseCast(widget.movie?.movieCast)[index];
-                          return _buildCastItem(name, dark);
+                          final image = castFiles[index];
+                          final name = castNames[index];
+                          return _buildCastItem(name, image, dark);
                         },
                       ),
                     ),
@@ -498,7 +520,7 @@ class _DetailMovieState extends State<DetailMovie> {
     );
   }
 
-  Widget _buildCastItem(String name, bool dark) {
+  Widget _buildCastItem(String name, String image, bool dark) {
     return Container(
       width: 80,
       margin: const EdgeInsets.only(right: 16),
@@ -508,7 +530,7 @@ class _DetailMovieState extends State<DetailMovie> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: FutureBuilder<String>(
-              future: ImageService.getCast(name, widget.movie?.title ?? ''),
+              future: ImageService.getCast(image, widget.movie?.title ?? ''),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Container(
