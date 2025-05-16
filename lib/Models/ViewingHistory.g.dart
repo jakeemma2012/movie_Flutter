@@ -20,19 +20,28 @@ class ViewingHistoryAdapter extends TypeAdapter<ViewingHistory> {
       userId: fields[0] as int,
       videoId: fields[1] as int,
       progress: fields[2] as double,
+      position: fields[3] as int,
+      lastWatched: fields[4] as DateTime?,
+      isSynced: fields[5] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ViewingHistory obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
       ..write(obj.videoId)
       ..writeByte(2)
-      ..write(obj.progress);
+      ..write(obj.progress)
+      ..writeByte(3)
+      ..write(obj.position)
+      ..writeByte(4)
+      ..write(obj.lastWatched)
+      ..writeByte(5)
+      ..write(obj.isSynced);
   }
 
   @override

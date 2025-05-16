@@ -125,7 +125,7 @@ class SideMenuList extends StatelessWidget {
             ),
             onTap: () {
               menuKey.currentState?.closeSideMenu();
-              Get.to(() => MoviePlayerScreen(episodes: episodes));
+              Get.to(() => MoviePlayerScreen());
             },
           ),
         ],

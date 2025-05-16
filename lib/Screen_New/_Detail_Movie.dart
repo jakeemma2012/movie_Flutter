@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:movieappprj/Models/User.dart';
 import 'package:movieappprj/Models/ViewingHistory.dart';
 import 'package:movieappprj/Services/DatabaseService.dart';
 import 'package:movieappprj/Services/ImageService.dart';
+import 'package:movieappprj/Services/VIewingHistoryREPO.dart';
 import 'package:movieappprj/Utils/constants.dart';
 import 'package:better_player/better_player.dart';
 
@@ -38,7 +40,7 @@ class _DetailMovieState extends State<DetailMovie> {
 
   BetterPlayerController? _betterPlayerController;
   bool isFavorite = false;
-  var box = Hive.box<ViewingHistory>('viewingHistoryBox');
+  final ViewingHistoryService _viewingHistoryService = ViewingHistoryService();
 
   List<String> castFiles = [];
   List<String> castNames = [];
@@ -61,20 +63,51 @@ class _DetailMovieState extends State<DetailMovie> {
     }
   }
 
-  Future<void> _playTrailer() async {
+  Future<void> _playTrailer(String type) async {
     try {
-      final videoUrl = await ImageService.getAssets(
-        widget.movie?.trailerUrl ?? '',
-        "trailer",
-      );
-      print("TRAILER URL: $videoUrl");
+      String videoUrl = '';
+      if (type == 'trailer') {
+        videoUrl = await ImageService.getAssets(
+          widget.movie?.trailerUrl ?? '',
+          "trailer",
+        );
+      } else {
+        if (widget.movie?.videoUrl != null) {
+          videoUrl = await ImageService.getAssets(
+            widget.movie?.videoUrl ?? '',
+            "video",
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Video UP COMING'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
+      }
+
       if (videoUrl.isNotEmpty) {
+        Duration? startPosition;
+        ViewingHistory? history;
+        if (type == 'video') {
+          history = ViewingHistoryService.getHistory(
+            widget.movie?.movieId ?? 0,
+          );
+          if (history != null) {
+            startPosition = Duration(seconds: history.position);
+            print("Start position from history: ${history.position} seconds");
+          }
+        }
+
         final betterPlayerController = BetterPlayerController(
           BetterPlayerConfiguration(
             autoPlay: true,
             aspectRatio: 16 / 9,
             fit: BoxFit.contain,
             looping: false,
+            startAt: startPosition,
             errorBuilder: (context, errorMessage) {
               print("Error while loading video: $errorMessage");
               return Center(
@@ -108,22 +141,53 @@ class _DetailMovieState extends State<DetailMovie> {
           ),
         );
 
-        betterPlayerController.addEventsListener((event) {
-          print("BetterPlayer event: ${event.betterPlayerEventType}");
-        });
+        Timer? progressTimer;
+        if (type == 'video') {
+          progressTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+            final controller = betterPlayerController.videoPlayerController;
+            if (controller?.value.isPlaying ?? false) {
+              final position = controller?.value.position.inSeconds ?? 0;
+              final duration = controller?.value.duration?.inSeconds ?? 0;
 
+              if (duration > 0) {
+                final progress = (position / duration) * 100;
+                print(
+                  "Current progress: $progress% (position: $position, duration: $duration)",
+                );
+
+                if (history != null) {
+                  ViewingHistoryService.updateProgress(
+                    widget.movie?.movieId ?? 0,
+                    progress,
+                    position,
+                  );
+                } else {
+                  final history = ViewingHistory(
+                    userId: User.getUserId(),
+                    videoId: widget.movie?.movieId ?? 0,
+                    progress: progress,
+                    position: position,
+                    lastWatched: DateTime.now(),
+                    isSynced: false,
+                  );
+                  ViewingHistoryService.saveHistory(history);
+                }
+              }
+            }
+          });
+        }
         if (!mounted) return;
-
-        // final history = ViewingHistory(userId: User.getUserId(), videoId: widget.movie?.movieId ?? 0, progress: 50.0);
-        // await box.add(history);
 
         showDialog(
           context: context,
-          barrierDismissible: false,
+          barrierDismissible: true,
           builder: (context) {
-            // ignore: deprecated_member_use
             return WillPopScope(
-              onWillPop: () async => false,
+              onWillPop: () async {
+                progressTimer?.cancel();
+                betterPlayerController.dispose();
+                return true;
+              },
               child: AlertDialog(
                 backgroundColor: Colors.black,
                 contentPadding: EdgeInsets.zero,
@@ -134,6 +198,7 @@ class _DetailMovieState extends State<DetailMovie> {
                 actions: [
                   TextButton(
                     onPressed: () {
+                      progressTimer?.cancel();
                       betterPlayerController.dispose();
                       Navigator.of(context).pop();
                     },
@@ -162,7 +227,7 @@ class _DetailMovieState extends State<DetailMovie> {
       print('Stack trace: $stackTrace');
 
       if (mounted) {
-        Navigator.of(context).pop(); // Close dialog nếu đã mở
+        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Could not play the video: $e'),
@@ -211,10 +276,9 @@ class _DetailMovieState extends State<DetailMovie> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-
     return SafeArea(
       child: Scaffold(
-        backgroundColor: dark ? Colors.black : Colors.white10,
+        backgroundColor: dark ? Colors.black : Colors.white,
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +320,7 @@ class _DetailMovieState extends State<DetailMovie> {
                   // Play Trailer Button
                   Positioned.fill(
                     child: GestureDetector(
-                      onTap: _playTrailer,
+                      onTap: () => _playTrailer('trailer'),
                       child: Container(
                         color: Colors.black.withOpacity(0.3),
                         child: Center(
@@ -330,7 +394,7 @@ class _DetailMovieState extends State<DetailMovie> {
                       children: [
                         Expanded(
                           child: Text(
-                            widget.movie?.title ?? '',
+                            "${widget.movie!.title} (${widget.movie!.status})",
                             style: GoogleFonts.merriweather(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -382,6 +446,14 @@ class _DetailMovieState extends State<DetailMovie> {
                         _buildDetailItem(
                           'Rating',
                           '${widget.movie?.rating}/10' ?? '',
+                        ),
+                        SizedBox(width: 50),
+                        ButtonTheme(
+                          padding: EdgeInsets.all(16),
+                          child: ElevatedButton(
+                            onPressed: () => _playTrailer('video'),
+                            child: Text('Watch Now'),
+                          ),
                         ),
                       ],
                     ),

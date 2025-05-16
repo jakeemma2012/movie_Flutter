@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:movieappprj/Models/ViewingHistory.dart';
+import 'package:movieappprj/Services/VIewingHistoryREPO.dart';
+
 class User {
   final int id;
   final String name;
@@ -19,12 +22,14 @@ class User {
 
   static User? user;
 
+  static ViewingHistory? viewingHistory;
+
   static User? get getUser => user;
 
   static bool get _isLogedIn => user != null;
 
   factory User.fromJson(Map<String, dynamic> json) {
-    print(json);
+    // print(json);
     return User(
       email: json['email'],
       accessToken: json['accessToken'],
@@ -35,7 +40,24 @@ class User {
     );
   }
 
+  static setViewingHistory() {
+    ViewingHistoryService.fetchFromServer();
+  }
+
   static getUserId() {
     return user?.id ?? 0;
+  }
+
+  static getAccessToken() {
+    return user?.accessToken ?? '';
+  }
+
+  static void setUser(User user) {
+    User.user = user;
+    setViewingHistory();
+  }
+
+  static void clearUser() {
+    User.user = null;
   }
 }

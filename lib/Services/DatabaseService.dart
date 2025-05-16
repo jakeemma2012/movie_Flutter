@@ -21,7 +21,7 @@ class DatabaseService {
       };
 
       final response = await http.get(
-        Uri.parse('$baseUrl/movies/all'),
+        Uri.parse('$baseUrl/movies/get_movie_now_showing'),
         headers: headers,
       );
 
@@ -44,24 +44,32 @@ class DatabaseService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> getPopular() async {
-    final headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer ${User.getUser?.accessToken} ?? ""',
-    };
+  static Future<List<Movie>> getUpcoming() async {
+    try {
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${User.getUser?.accessToken} ?? ""',
+      };
 
-    final response = await http.get(
-      Uri.parse('$baseUrl/movies/all'),
-      headers: headers,
-    );
-    if (response.statusCode == 200) {
-      // print(jsonDecode(response.body));
-      return jsonDecode(
-        response.body,
-      )['results'].map((e) => Movie.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load popular movies');
+      final response = await http.get(
+        Uri.parse('$baseUrl/movies/get_movie_upcoming'),
+        headers: headers,
+      );
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        // print(_prettyPrintJson(jsonResponse));
+        if (jsonResponse is List) {
+          return jsonResponse.map((e) => Movie.fromJson(e)).toList();
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception('Failed to load upcoming movies');
+      }
+    } catch (e) {
+      print('Error in getUpcoming: $e');
+      throw Exception('Failed to load upcoming movies: $e');
     }
   }
 

@@ -175,7 +175,7 @@ class _ScreenRsgLoginState extends State<ScreenRsgLogin>
                                               final user = User.fromJson(
                                                 jsonDecode(log['message']),
                                               );
-                                              User.user = user;
+                                              User.setUser(user);
                                               if (User.user != null) {
                                                 Navigator.pushReplacement(
                                                   context,

@@ -57,7 +57,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   Future<void> _loadPopularMovies() async {
     try {
-      final movies = await DatabaseService.getNowShowing();
+      final movies = await DatabaseService.getUpcoming();
       if (mounted) {
         setState(() {
           popular = movies;
@@ -125,7 +125,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                   const SizedBox(height: 25),
                                   _Title_Pupular_and_See_all(dark),
                                   const SizedBox(height: 15),
-                                  _buildPopularList(context, dark, nowShowing),
+                                  _buildPopularList(context, dark, popular),
                                 ],
                               ),
                             ),
