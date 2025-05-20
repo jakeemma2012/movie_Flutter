@@ -2,11 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hidden_drawer_menu/model/item_hidden_menu.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:movieappprj/Models/User.dart';
 import 'package:movieappprj/Screen_New/_HomePage.dart';
-import 'package:movieappprj/Screen_New/_Item_hidden_menu.dart';
 import 'package:movieappprj/Services/UserService.dart';
 import '../Utils/constants.dart';
 import 'package:movieappprj/Controllers/Slide_Change_Login_Register_Controller.dart';

@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:movieappprj/Screen/Login_Screen.dart';
-import 'package:movieappprj/Screen_New/Screen_LOGIN.dart';
 import 'package:movieappprj/Screen_New/Screen_RSG_LOGIN.dart';
-import 'package:movieappprj/Screen_New/_Item_hidden_menu.dart';
 
 class Dotnavigation_Controller extends GetxController {
   static Dotnavigation_Controller get instance => Get.find();
@@ -25,7 +22,7 @@ class Dotnavigation_Controller extends GetxController {
       pagecontroller.jumpToPage(0);
       // Get.to(ScreenLogin());
     } else {
-      int page =curentIndex.value += 1;
+      int page = curentIndex.value += 1;
       pagecontroller.jumpToPage(page);
     }
   }
@@ -33,8 +30,8 @@ class Dotnavigation_Controller extends GetxController {
   void SkipButton(BuildContext context) {
     Navigator.pushReplacement(
       context,
-     MaterialPageRoute(builder: (context) => const ScreenRsgLogin()),
-        // MaterialPageRoute(builder: (context) => const HiddenMenuScreen()),
+      MaterialPageRoute(builder: (context) => const ScreenRsgLogin()),
+      // MaterialPageRoute(builder: (context) => const HiddenMenuScreen()),
     );
   }
 }

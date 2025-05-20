@@ -4,12 +4,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:movieappprj/Function/_bottom_NAV.dart';
 import 'package:movieappprj/Models/Episode%20.dart' show Episode;
-import 'package:movieappprj/Screen/Home_Screen.dart';
-import 'package:movieappprj/Screen_New/Screen_HOME.dart';
-import 'package:movieappprj/Screen_New/_FavoritePage.dart';
 import 'package:movieappprj/Screen_New/_MoviePlayerScreen%20.dart';
-import 'package:movieappprj/Screen_New/_ProfilePage.dart';
-import 'package:movieappprj/Screen_New/_SearchPage.dart';
 import 'package:movieappprj/Utils/constants.dart';
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 
